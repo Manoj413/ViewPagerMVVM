@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">ViewPagerMVVM</string>
+
+
+    <string name="tab_text_1">First</string>
+    <string name="tab_text_2">Second</string>
+</resources>
