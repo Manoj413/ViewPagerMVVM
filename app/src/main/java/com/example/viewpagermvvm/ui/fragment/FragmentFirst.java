@@ -1,6 +1,7 @@
 package com.example.viewpagermvvm.ui.fragment;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -20,42 +21,69 @@ import com.example.viewpagermvvm.R;
 import com.example.viewpagermvvm.base.BaseFragment;
 import com.example.viewpagermvvm.data.model.Repo;
 import com.example.viewpagermvvm.ui.adapter.FirstRecyclerAdapter;
+import com.example.viewpagermvvm.util.ViewModelFactory;
 
 import java.util.ArrayList;
 
+import javax.inject.Inject;
+
 import butterknife.BindView;
 
-public class FragmentFirst extends Fragment {
+public class FragmentFirst extends BaseFragment {
     private static final String TAG = "First";
-    //@BindView(R.id.textViewFragment)
+    @BindView(R.id.recyclerFirst)
     RecyclerView recyclerView;
     RecyclerView.LayoutManager layoutManager;
     FirstRecyclerAdapter firstRecyclerAdapter;
     ViewPagerModel pageViewModel;
+    @BindView(R.id.loading_view)
     ProgressBar progressBar;
+    @BindView(R.id.tv_error)
     TextView errorTextView;
+    @Inject
+    ViewModelFactory viewModelFactory;
 
-   /* @Override
+    @Override
     protected int layoutRes() {
         return R.layout.lay_fragment_first;
     }
-*/
     public FragmentFirst() {
         // Required empty public constructor
     }
 
-    /**
-     * @return A new instance of fragment SpeedDialFragment.
-     */
+
     public static FragmentFirst newInstance() {
         return new FragmentFirst();
     }
+
+
     @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        pageViewModel = ViewModelProviders.of(this,viewModelFactory).get(ViewPagerModel.class);
+        pageViewModel.setIndex(TAG);
+
+        pageViewModel.getRepos().observe(this, new Observer<ArrayList<Repo>>() {
+            @Override
+            public void onChanged(ArrayList<Repo> repos) {
+                Toast.makeText(getContext(),"Result Obtained",Toast.LENGTH_LONG).show();
+
+                setupAdapter(repos);
+            }
+        });
+
+
+        observableViewModel();
+    }
+
+
+
+   /* @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         pageViewModel = ViewModelProviders.of(this).get(ViewPagerModel.class);
         pageViewModel.setIndex(TAG);
     }
+
 
 
 
@@ -80,10 +108,10 @@ public class FragmentFirst extends Fragment {
        observableViewModel();
         return root;
     }
-
+*/
 
     private void observableViewModel() {
-        pageViewModel.getMutableLiveData().observe(this, repos -> {
+        pageViewModel.getRepos().observe(this, repos -> {
             if(repos != null) recyclerView.setVisibility(View.VISIBLE);
         });
 

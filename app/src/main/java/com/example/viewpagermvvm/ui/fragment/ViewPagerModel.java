@@ -13,6 +13,7 @@ import com.example.viewpagermvvm.data.model.User;
 import com.example.viewpagermvvm.data.rest.APIClient;
 import com.example.viewpagermvvm.data.rest.APIClientUser;
 import com.example.viewpagermvvm.data.rest.APIInterface;
+import com.example.viewpagermvvm.data.rest.RepoRepository;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -41,25 +42,83 @@ public class ViewPagerModel extends ViewModel {
     private MutableLiveData<User> userMutableLiveData = new MutableLiveData<>();
     private final MutableLiveData<Boolean> repoLoadError = new MutableLiveData<>();
     private final MutableLiveData<Boolean> loading = new MutableLiveData<>();
-    private CompositeDisposable disposable = new CompositeDisposable();
-    private APIInterface apiInterface;
+  //  private APIInterface apiInterface;
 
-  /* @Inject
-   public ViewPagerModel(APIInterface repoRepository) {
-       this.apiInterface = repoRepository;
-      // disposable = new CompositeDisposable();
-      getMutableLiveData();
-       getMutableLiveUserData();
-   }
+    private final RepoRepository repoRepository;
+    private CompositeDisposable disposable;
+
+    @Inject
+    public ViewPagerModel(RepoRepository repoRepository) {
+        this.repoRepository = repoRepository;
+        disposable = new CompositeDisposable();
+        fetchRepos();
+        fetchUser();
+    }
     LiveData<ArrayList<Repo>> getRepos() {
         return mRepoData;
     }
-
     LiveData<User> getUserData() {
         return userMutableLiveData;
     }
+    private void fetchUser() {
+        repoRepository.getRepo().subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new SingleObserver<User>() {
+                    @Override
+                    public void onSubscribe(Disposable d) {
+                        Log.e("onSubscribe2","onSubscribe2");
+                        repoLoadError.setValue(true);
+                        //loading.setValue(false);
+                    }
 
-*/
+                    @Override
+                    public void onSuccess(User value) {
+                        Log.e("onSuccess2","onSuccess2 = "+value.toString());
+                        userMutableLiveData.setValue(value);
+                        repoLoadError.setValue(false);
+                        loading.setValue(false);
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        Log.e("onError2","onError2 = "+e);
+                        loading.setValue(false);
+                    }
+                });
+    }
+
+    private void fetchRepos()
+    {
+        repoRepository.getRepositories().subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new SingleObserver<ArrayList<Repo>>()
+                {
+                    @Override
+                    public void onSubscribe(Disposable d)
+                    {
+                        Log.e("onSubscribe","onSubscribe");
+                        repoLoadError.setValue(true);
+                        // loading.setValue(false);
+
+                    }
+
+                    @Override
+                    public void onSuccess(ArrayList<Repo> value)
+                    {
+                        Log.e("onSuccess","onSuccess = "+value.toString());
+                        mRepoData.setValue(value);
+                        repoLoadError.setValue(false);
+                        loading.setValue(false);
+                    }
+
+                    @Override
+                    public void onError(Throwable e)
+                    {
+                        Log.e("onError","onError = "+e);
+                        loading.setValue(false);
+                    }
+                });
+    }
 
     LiveData<Boolean> getError() {
         return repoLoadError;
@@ -71,10 +130,8 @@ public class ViewPagerModel extends ViewModel {
         mTitle.setValue(index);
     }
 
-    public LiveData<ArrayList<Repo>> getText() {
-        return mRepoData;
-    }
-    public MutableLiveData<ArrayList<Repo>> getMutableLiveData()
+
+   /* public MutableLiveData<ArrayList<Repo>> getMutableLiveData()
     {
         loading.setValue(true);
         APIInterface apiInterface = APIClient.getInstance().getMyApi();
@@ -149,7 +206,7 @@ public class ViewPagerModel extends ViewModel {
                });
         return userMutableLiveData;
     }
-
+*/
     @Override
     protected void onCleared() {
         super.onCleared();

@@ -16,6 +16,6 @@ public interface APIInterface
     @GET("Google/repos")
     Single<ArrayList<Repo>> getRepoData();
 
-    @GET("/api/users")
+    @GET("https://reqres.in/api/users")
     Single<User> getUserData();
 }

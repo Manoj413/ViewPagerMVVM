@@ -2,6 +2,7 @@ package com.example.viewpagermvvm.ui.adapter;
 
 import android.content.Context;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.StringRes;
 import androidx.fragment.app.Fragment;
@@ -19,9 +20,9 @@ public class TabsPagerAdapter extends FragmentPagerAdapter {
             new int[]{R.string.tab_text_1, R.string.tab_text_2};
     private final Context mContext;
 
-    public TabsPagerAdapter(Context context, FragmentManager fm) {
-        super(fm);
-        mContext = context;
+    public TabsPagerAdapter(@NonNull FragmentManager fm, int behavior, Context mContext) {
+        super(fm, behavior);
+        this.mContext = mContext;
     }
 
     @Override

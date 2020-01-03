@@ -22,31 +22,63 @@ import com.example.viewpagermvvm.data.model.Repo;
 import com.example.viewpagermvvm.data.model.User;
 import com.example.viewpagermvvm.ui.adapter.FirstRecyclerAdapter;
 import com.example.viewpagermvvm.ui.adapter.SecondRecyclerAdapter;
+import com.example.viewpagermvvm.util.ViewModelFactory;
 
 import java.util.ArrayList;
 
+import javax.inject.Inject;
+
 import butterknife.BindView;
 
-public class FragmentSecond  extends Fragment {
+public class FragmentSecond  extends BaseFragment {
     private static final String TAG = "Second";
+
     ViewPagerModel pageViewModel;
+    @BindView(R.id.recyclerFirst)
     RecyclerView recyclerView;
     RecyclerView.LayoutManager layoutManager;
     SecondRecyclerAdapter secondRecyclerAdapter;
+    @BindView(R.id.loading_view)
     ProgressBar progressBar;
+    @BindView(R.id.tv_error)
     TextView errorTextView;
+    @Inject
+    ViewModelFactory viewModelFactory;
+
+    @Override
+    protected int layoutRes() {
+        return R.layout.lay_fragment_first;
+    }
+
 
     public FragmentSecond() {
         // Required empty public constructor
     }
 
-    /**
-     * @return A new instance of fragment SpeedDialFragment.
-     */
+
     public static FragmentSecond newInstance() {
         return new FragmentSecond();
     }
+
     @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        pageViewModel = ViewModelProviders.of(this,viewModelFactory).get(ViewPagerModel.class);
+        pageViewModel.setIndex(TAG);
+
+        pageViewModel.getUserData().observe(this, new Observer<User>() {
+            @Override
+            public void onChanged(User user) {
+                Toast.makeText(getContext(),"User Data",Toast.LENGTH_LONG).show();
+                setupAdapter(user);
+            }
+        });
+
+
+        observableViewModel();
+    }
+
+
+  /*  @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         pageViewModel = ViewModelProviders.of(this).get(ViewPagerModel.class);
@@ -72,9 +104,9 @@ public class FragmentSecond  extends Fragment {
 
         return root;
     }
-
+*/
     private void observableViewModel() {
-        pageViewModel.getMutableLiveData().observe(this, repos -> {
+        pageViewModel.getUserData().observe(this, repos -> {
             if(repos != null) recyclerView.setVisibility(View.VISIBLE);
         });
 
